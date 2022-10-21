@@ -13,9 +13,10 @@ for (int i = 0; i < 1000; i++)
     mundo1.AdicionarJogador(new Coolaborador());
 
 for (int i = 0; i < 500; i++)
+{
     mundo2.AdicionarJogador(new Coolaborador());
-for (int i = 0; i < 500; i++)
     mundo2.AdicionarJogador(new Trapaceiro());
+}
 
 for (int i = 0; i < 750; i++)
     mundo3.AdicionarJogador(new Coolaborador());
@@ -28,13 +29,12 @@ for (int i = 0; i < 50; i++)
     mundo4.AdicionarJogador(new Trapaceiro());
 
 for (int i = 0; i < 250; i++)
+{
     mundo5.AdicionarJogador(new Vingativo());
-for (int i = 0; i < 250; i++)
     mundo5.AdicionarJogador(new Trapaceiro());
-for (int i = 0; i < 250; i++)
     mundo5.AdicionarJogador(new Coolaborador());
-for (int i = 0; i < 250; i++)
     mundo5.AdicionarJogador(new Medroso());
+}
 
 for (int i = 0; i < 1000; i++)
     mundo6.AdicionarJogador(new Matematico());
