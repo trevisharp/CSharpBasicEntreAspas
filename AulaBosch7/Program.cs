@@ -135,32 +135,32 @@ public class LinkedListNode<T>
     public LinkedListNode<T> Next { get; set; }
 }
 
-// public class ListIterator<T> : IEnumerator<T>
-// {
-//    private List<T> list;
-//     int index = -1;
-//     public ListIterator(List<T> list)
-//     {
-//         this.list = list;
-//     }
+public class ListIterator<T> : IEnumerator<T>
+{
+   private List<T> list;
+    int index = -1;
+    public ListIterator(List<T> list)
+    {
+        this.list = list;
+    }
 
-//     public T Current => list[index];
+    public T Current => list[index];
 
-//     object IEnumerator.Current => this.Current;
+    object IEnumerator.Current => this.Current;
 
-//     public void Dispose()
-//     {
-//         throw new NotImplementedException();
-//     }
+    public void Dispose()
+    {
+        throw new NotImplementedException();
+    }
 
-//     public bool MoveNext()
-//     {
-//         index++;
-//         return index < list.Count;
-//     }
+    public bool MoveNext()
+    {
+        index++;
+        return index < list.Count;
+    }
 
-//     public void Reset() => index = -1;
-// }
+    public void Reset() => index = -1;
+}
 
 public static class MyExtensionMethods
 {
