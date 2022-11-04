@@ -103,12 +103,20 @@ public class Pessoa
 public static class MyExtensionMethods
 {
     public static IEnumerable<R> Select<T, R>(
-        this IEnumerable<T> entrada, 
+        this IEnumerable<T> coll, 
         Func<T, R> func)
     {
-        var it = entrada.GetEnumerator();
+        var it = coll.GetEnumerator();
         while (it.MoveNext())
             yield return func(it.Current);
+    }
+
+    public static IEnumerable<T> Where<T>(
+        this IEnumerable<T> coll,
+        Func<T, bool> condition
+    )
+    {
+
     }
 
     public static IEnumerable<T> Skip<T>(this IEnumerable<T> coll, int N)
