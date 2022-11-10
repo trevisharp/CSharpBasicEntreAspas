@@ -3,18 +3,44 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-var query = read()
-    .Where(c => c.IsCovid)
+var covidCases = read()
+    .Where(c => c.IsCovid);
+
+var letalGroup = covidCases
     .GroupBy(c => c.Doses)
     .Select(g => new {
         qtdDoses = g.Key,
         letalidade = g.Average(c => c.IsDead ? 1.0 : 0.0)
     });
 
-foreach (var cl in query)
+var vacinados = covidCases
+    .Where(c => c.Doses > 0);
+
+var gruposVacinais = vacinados
+    .Select(x =>
+    {
+        if (x.Vacina.Contains("BUT") || x.Vacina.Contains("NAVAC"))
+            return new {
+                vacina = 1,
+                caso = x
+            };
+        
+        return new {
+                vacina = -1,
+                caso = x
+            };;
+    })
+    .GroupBy(x => x.vacina);
+
+// foreach (var lg in letalGroup)
+// {
+//     Console.WriteLine($"Doses: {lg.qtdDoses}, " + 
+//         $"Letalidade: {lg.letalidade}");
+// }
+
+foreach (var x in vacinados)
 {
-    Console.WriteLine($"Doses: {cl.qtdDoses}, " + 
-        $"Letalidade: {cl.letalidade}");
+    Console.WriteLine(x.Vacina);
 }
 // Console.WriteLine(query
 //     .Average(c => c.IsDead ? 1.0 : 0.0));
@@ -37,6 +63,8 @@ IEnumerable<CasoCovid> read()
     int dose1 = header.IndexOf("\"DOSE_1_COV\"");
     int dose2 = header.IndexOf("\"DOSE_2_COV\"");
 
+    int lab = header.IndexOf("\"LAB_PR_COV\"");
+
     while (!reader.EndOfStream)
     {
         var line = reader.ReadLine();
@@ -53,6 +81,8 @@ IEnumerable<CasoCovid> read()
             doses++;
         caso.Doses = doses;
 
+        caso.Vacina = data[lab];
+
         yield return caso;
     }
 
@@ -64,6 +94,7 @@ public class CasoCovid
     public bool IsCovid { get; set; }
     public bool IsDead { get; set; }
     public int Doses { get; set; }
+    public string Vacina { get; set; }
 
     public override string ToString()
         => $"{IsCovid} {IsDead} {Doses}";
