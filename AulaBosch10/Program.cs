@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 void ChameNVezesExemplo()
 {
@@ -46,18 +47,36 @@ var pessoas = new List<Pessoa>()
     },
     new Pessoa()
     {
+        Nome = "Professor da Federal",
+        Idade = 80
+    },
+    new Pessoa()
+    {
         Nome = "Eu",
         Idade = 23
     },
     new Pessoa()
     {
+        Nome = "Tia Ivone",
+        Idade = 100
+    },
+    new Pessoa()
+    {
+        Nome = "Cara que nasceu depois de 2000",
+        Idade = 4
+    },
+    new Pessoa()
+    {
         Nome = "Voces",
         Idade = 16
-    }
+    },
 };
-var idades = pessoas
-    .Select(p => p.Idade)
-    .Select(i => i * i);
+var query = pessoas
+    .Where(p => p.Idade > 17)
+    .OrderBy(p => p.Nome[0])
+    .Select(p => p.Nome);
+foreach (var x in query)
+    Console.WriteLine(x);
 
 int[] Transforme(int[] entrada, Transformador<int> t)
 {
@@ -116,7 +135,98 @@ public static class MyExtensionMethods
         Func<T, bool> condition
     )
     {
+        var it = coll.GetEnumerator();
+        while (it.MoveNext())
+            if (condition(it.Current))
+                yield return it.Current;
+    }
 
+    public static int Max<T>(
+        this IEnumerable<T> coll,
+        Func<T, int> func
+    )
+    {
+        throw new NotImplementedException();
+    }
+
+    public static double Average<T>(
+        this IEnumerable<T> coll,
+        Func<T, double> func
+    )
+    {
+        throw new NotImplementedException();
+    }
+
+    public static IEnumerable<T> OrderBy<T>(
+        this IEnumerable<T> coll,
+        Func<T, double> func
+    )
+    {
+        T[] data = coll.ToArray();
+        mergesort(data);
+        return data;
+
+        void mergesort(T[] arr)
+        {
+            int e = arr.Length;
+            T[] arraux = new T[e];
+            mergesortrec(arr, arraux, 0, e);
+        }
+
+        void mergesortrec(
+            T[] arr, 
+            T[] arraux, 
+            int s, int e)
+        {
+            if (e - s < 2)
+                return;
+            int p = (s + e) / 2;
+            mergesortrec(arr, arraux, s, p);
+            mergesortrec(arr, arraux, p, e);
+            merge(arr, arraux, s, p, e);
+        }
+
+        void merge(
+            T[] arr, 
+            T[] arraux, 
+            int s, int p, int e)
+        {
+            int i = s, j = p, k = s;
+            while (i < p && j < e)
+            {
+                if (func(arr[i]) < func(arr[j]))
+                {
+                    arraux[k] = arr[i];
+                    i++;
+                    k++;
+                }
+                else
+                {
+                    arraux[k] = arr[j];
+                    j++;
+                    k++;
+                }
+            }
+
+            while (i < p)
+            {
+                arraux[k] = arr[i];
+                i++;
+                k++;
+            }
+
+            while (j < e)
+            {
+                arraux[k] = arr[j];
+                j++;
+                k++;
+            }
+
+            for (int t = s; t < e; t++)
+            {
+                arr[t] = arraux[t];
+            }
+        }
     }
 
     public static IEnumerable<T> Skip<T>(this IEnumerable<T> coll, int N)
