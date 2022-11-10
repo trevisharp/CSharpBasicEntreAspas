@@ -4,12 +4,25 @@ using System.IO;
 using System.Linq;
 
 var query = read()
-    .Where(c => c.IsCovid);
+    .Where(c => c.IsCovid)
+    .GroupBy(c => c.Doses)
+    .Select(g => new {
+        qtdDoses = g.Key,
+        letalidade = g.Average(c => c.IsDead ? 1.0 : 0.0)
+    });
 
-foreach (var x in query)
+foreach (var cl in query)
 {
-    Console.WriteLine(x.IsCovid);
+    Console.WriteLine($"Doses: {cl.qtdDoses}, " + 
+        $"Letalidade: {cl.letalidade}");
 }
+// Console.WriteLine(query
+//     .Average(c => c.IsDead ? 1.0 : 0.0));
+
+// foreach (var x in query)
+// {
+//     Console.WriteLine(x);
+// }
 
 IEnumerable<CasoCovid> read()
 {
@@ -19,6 +32,10 @@ IEnumerable<CasoCovid> read()
     var header = firstLine.Split(';').ToList();
     
     int classfin = header.IndexOf("\"CLASSI_FIN\"");
+    int evolucao = header.IndexOf("\"EVOLUCAO\"");
+
+    int dose1 = header.IndexOf("\"DOSE_1_COV\"");
+    int dose2 = header.IndexOf("\"DOSE_2_COV\"");
 
     while (!reader.EndOfStream)
     {
@@ -27,6 +44,14 @@ IEnumerable<CasoCovid> read()
 
         var caso = new CasoCovid();
         caso.IsCovid = data[classfin] == "5";
+        caso.IsDead = data[evolucao] == "2";
+
+        int doses = 0;
+        if (data[dose1] != "\"\"")
+            doses++;
+        if (data[dose2] != "\"\"")
+            doses++;
+        caso.Doses = doses;
 
         yield return caso;
     }
@@ -37,4 +62,9 @@ IEnumerable<CasoCovid> read()
 public class CasoCovid
 {
     public bool IsCovid { get; set; }
+    public bool IsDead { get; set; }
+    public int Doses { get; set; }
+
+    public override string ToString()
+        => $"{IsCovid} {IsDead} {Doses}";
 }
