@@ -6,12 +6,12 @@ using System.Linq;
 var covidCases = read()
     .Where(c => c.IsCovid);
 
-var letalGroup = covidCases
-    .GroupBy(c => c.Doses)
-    .Select(g => new {
-        qtdDoses = g.Key,
-        letalidade = g.Average(c => c.IsDead ? 1.0 : 0.0)
-    });
+// var letalGroup = covidCases
+//     .GroupBy(c => c.Doses)
+//     .Select(g => new {
+//         qtdDoses = g.Key,
+//         letalidade = g.Average(c => c.IsDead ? 1.0 : 0.0)
+//     });
 
 var vacinados = covidCases
     .Where(c => c.Doses > 0);
@@ -21,26 +21,44 @@ var gruposVacinais = vacinados
     {
         if (x.Vacina.Contains("BUT") || x.Vacina.Contains("NAVAC"))
             return new {
-                vacina = 1,
+                vacina = "CORONAVAC",
+                caso = x
+            };
+
+        if (x.Vacina.Contains("AST"))
+            return new {
+                vacina = "ASTRAZENECA",
+                caso = x
+            };
+
+        if (x.Vacina.Contains("PH") || x.Vacina.Contains("IZER"))
+            return new {
+                vacina = "PFIZER",
+                caso = x
+            };
+
+        if (x.Vacina.Contains("JAN") || x.Vacina.Contains("JEN"))
+            return new {
+                vacina = "JANSSEN",
                 caso = x
             };
         
         return new {
-                vacina = -1,
+                vacina = "DESCONHECIDO",
                 caso = x
             };;
     })
-    .GroupBy(x => x.vacina);
+    .GroupBy(x => x.vacina)
+    .Select(g => new {
+        Vacina = g.Key,
+        Letalidade = g.Average(c => c.caso.IsDead ? 1.0 : 0.0)
+    });
 
-// foreach (var lg in letalGroup)
-// {
-//     Console.WriteLine($"Doses: {lg.qtdDoses}, " + 
-//         $"Letalidade: {lg.letalidade}");
-// }
-
-foreach (var x in vacinados)
+foreach (var x in gruposVacinais)
 {
-    Console.WriteLine(x.Vacina);
+    Console.WriteLine($"Vacina: {x.Vacina}");
+    Console.WriteLine($"Letalidade: {x.Letalidade}");
+    Console.WriteLine();
 }
 // Console.WriteLine(query
 //     .Average(c => c.IsDead ? 1.0 : 0.0));
