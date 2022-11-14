@@ -6,6 +6,9 @@ using System.Linq;
 var covidCases = read()
     .Where(c => c.IsCovid);
 
+Console.WriteLine(
+    $"Média de idade dos pacientes {covidCases.Average(c => c.Idade)}");
+
 // var letalGroup = covidCases
 //     .GroupBy(c => c.Doses)
 //     .Select(g => new {
@@ -54,12 +57,52 @@ var gruposVacinais = vacinados
         Letalidade = g.Average(c => c.caso.IsDead ? 1.0 : 0.0)
     });
 
-foreach (var x in gruposVacinais)
+var faixasEtarias = vacinados
+    .Select(c =>
+    {
+        if (c.Idade < 12)
+            return new {
+                FaixaEtaria = "Criança",
+                Caso = c
+            };
+        
+        if (c.Idade < 20)
+            return new {
+                FaixaEtaria = "Criança Mais velha",
+                Caso = c
+            };
+        
+        if (c.Idade < 30)
+            return new {
+                FaixaEtaria = "Adulto Responsável",
+                Caso = c
+            };
+        
+        if (c.Idade < 50)
+            return new {
+                FaixaEtaria = "Adulto de meia-idade",
+                Caso = c
+            };
+        
+        return new {
+            FaixaEtaria = "Veio",
+            Caso = c
+        };
+    })
+    .GroupBy(c => c.FaixaEtaria)
+    .Select(g => new {
+        FaixasEtaria = g.Key,
+        Letalidade = g.Average(
+            x => x.Caso.IsDead ? 1.0 : 0.0)
+    });
+
+foreach (var x in faixasEtarias)
 {
-    Console.WriteLine($"Vacina: {x.Vacina}");
+    Console.WriteLine($"Faixa Etaria: {x.FaixasEtaria}");
     Console.WriteLine($"Letalidade: {x.Letalidade}");
     Console.WriteLine();
 }
+
 // Console.WriteLine(query
 //     .Average(c => c.IsDead ? 1.0 : 0.0));
 
@@ -83,6 +126,8 @@ IEnumerable<CasoCovid> read()
 
     int lab = header.IndexOf("\"LAB_PR_COV\"");
 
+    int idade = header.IndexOf("\"NU_IDADE_N\"");
+
     while (!reader.EndOfStream)
     {
         var line = reader.ReadLine();
@@ -101,6 +146,14 @@ IEnumerable<CasoCovid> read()
 
         caso.Vacina = data[lab];
 
+        if (int.TryParse(data[idade], out int i))
+        {
+            if (i < 0)
+                i = -i;
+            caso.Idade = i;
+        }
+        else continue;
+
         yield return caso;
     }
 
@@ -113,6 +166,7 @@ public class CasoCovid
     public bool IsDead { get; set; }
     public int Doses { get; set; }
     public string Vacina { get; set; }
+    public int Idade { get; set; }
 
     public override string ToString()
         => $"{IsCovid} {IsDead} {Doses}";
