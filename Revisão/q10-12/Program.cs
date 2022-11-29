@@ -97,7 +97,43 @@ public class Pesquisador
     /// </summary>
     public static void Pesquisa3(Universidade uni)
     {
-        WriteLine("Não implementado!");
+        var query = 
+            uni.Alunos.SelectMany(a => 
+                a.TurmasMatriculados
+                    .Select(m => new {
+                        Aluno = a.Nome,
+                        TurmaId = m
+                    })
+                )
+            .Join(uni.Turmas,
+                at => at.TurmaId,
+                t => t.ID,
+                (at, t) => new {
+                    Aluno = at.Aluno,
+                    ProfessorId = t.ProfessorID
+                })
+            .Join(uni.Professores,
+                ap => ap.ProfessorId,
+                p => p.ID,
+                (ap, p) => new {
+                    Aluno = ap.Aluno,
+                    Professor = p.Nome
+                })
+            .GroupBy(x => x.Aluno)
+            .Select(g => new {
+                Aluno = g.Key,
+                Professores = g.Select(x => x.Professor)
+                    .Distinct()
+            });
+
+        foreach (var x in query)
+        {
+            Write(x.Aluno + ": ");
+            foreach (var y in x.Professores)
+                Write(y + ", ");
+            WriteLine();
+        }
+
     }
 
     /// <summary>
